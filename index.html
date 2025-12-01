@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Linear Optimization Solver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+          displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="title-group">
+          <h1>
+            Linear Optimization Studio
+            <span class="badge">Simplex • Dual Simplex • Visualization</span>
+          </h1>
+          <p class="subtitle">
+            Solve LPs in matrix form, explore Simplex iterations, and visualize
+            2D feasible regions.
+          </p>
+        </div>
+        <div class="pill-row">
+          <span class="pill"><span class="dot"></span> Maximize cᵀx</span>
+          <span class="pill">Ax ≤ b, x ≥ 0</span>
+          <span class="pill">Educational Prototype</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <!-- LEFT: INPUT -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Problem Setup</div>
+              <div class="card-sub">Define dimensions and fill A, b, c</div>
+            </div>
+          </div>
+
+          <div
+            class="grid-3"
+            style="margin-bottom: 8px; position: relative; z-index: 1"
+          >
+            <div>
+              <label for="numConstraints">Constraints (m)</label>
+              <input
+                type="number"
+                id="numConstraints"
+                value="3"
+                min="1"
+                max="8"
+              />
+            </div>
+            <div>
+              <label for="numVariables">Variables (n)</label>
+              <input
+                type="number"
+                id="numVariables"
+                value="2"
+                min="2"
+                max="8"
+              />
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: flex-end;
+                justify-content: flex-end;
+              "
+            >
+              <button class="btn secondary" id="generateBtn">
+                Generate Matrices
+              </button>
+            </div>
+          </div>
+
+          <div style="position: relative; z-index: 1; margin-bottom: 8px">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+              "
+            >
+              <span class="pill-label">Objective:</span>
+              <select id="objectiveType" style="width: auto; padding: 4px 8px">
+                <option value="max">Maximize</option>
+                <option value="min">Minimize</option>
+              </select>
+              <span class="pill-label" id="objectiveLabel">ζ = cᵀ x</span>
+            </div>
+          </div>
+
+          <div
+            style="
+              position: relative;
+              z-index: 1;
+              margin-bottom: 8px;
+              display: flex;
+              gap: 6px;
+              flex-wrap: wrap;
+            "
+          >
+            <button
+              class="btn secondary"
+              id="importBtn"
+              title="Import from CSV or paste data"
+            >
+              📥 Import
+            </button>
+            <button
+              class="btn secondary"
+              id="exportBtn"
+              title="Export matrices to CSV"
+            >
+              📤 Export
+            </button>
+            <button
+              class="btn secondary"
+              id="saveBtn"
+              title="Save problem configuration"
+            >
+              💾 Save
+            </button>
+            <button
+              class="btn secondary"
+              id="loadBtn"
+              title="Load saved problem"
+            >
+              📂 Load
+            </button>
+            <select
+              id="exampleSelect"
+              style="
+                width: auto;
+                padding: 4px 8px;
+                border-radius: 8px;
+                border: 1px solid rgba(148, 163, 184, 0.6);
+                background: rgba(15, 23, 42, 0.9);
+                color: var(--text);
+                font-size: 0.8rem;
+              "
+            >
+              <option value="">📚 Examples...</option>
+              <option value="diet">Diet Problem</option>
+              <option value="production">Production Planning</option>
+              <option value="transportation">Transportation</option>
+              <option value="simple">Simple 2x2 Example</option>
+            </select>
+          </div>
+
+          <div id="matrixInputs" style="margin-top: 6px">
+            <!-- Matrices will be injected here -->
+          </div>
+
+          <div class="hint">
+            Standard form: max cᵀx subject to Ax ≤ b, x ≥ 0. Slack variables are
+            added automatically. Simplex + matrix dictionaries (B, B⁻¹, x_B,
+            dual y) are computed from this data.
+          </div>
+        </section>
+
+        <!-- RIGHT: OUTPUT & VISUALIZATION -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Solution & Visualization</div>
+              <div class="card-sub">
+                Run Simplex, Dual Simplex & inspect dictionaries
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap">
+              <button class="btn secondary" id="plotBtn">
+                Plot (for n = 2)
+              </button>
+              <button class="btn secondary" id="dualSolveBtn">
+                Dual Simplex
+              </button>
+              <button class="btn btn-primary" id="solveBtn">Solve LP</button>
+              <button
+                class="btn secondary"
+                id="exportResultsBtn"
+                title="Export results to CSV/PDF"
+              >
+                📄 Export Results
+              </button>
+            </div>
+          </div>
+
+          <div class="output-section">
+            <div id="status" class="status">Ready.</div>
+
+            <!-- Solution Summary Card -->
+            <div class="solution-card">
+              <div class="solution-header">
+                <span class="solution-icon">✓</span>
+                <h3>Optimal Solution</h3>
+              </div>
+              <div class="solution-content">
+                <div class="solution-item highlight">
+                  <div class="solution-label">Optimal Objective Value</div>
+                  <div class="solution-value" id="zStar">—</div>
+                </div>
+                <div class="solution-item">
+                  <div class="solution-label">Decision Variables (x*)</div>
+                  <div class="solution-vector" id="xStar">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variables Details -->
+            <div class="solution-card">
+              <div class="solution-header">
+                <span class="solution-icon">📊</span>
+                <h3>Variable Details</h3>
+              </div>
+              <div class="solution-content">
+                <div class="solution-item">
+                  <div class="solution-label">Slack/Surplus Variables</div>
+                  <div class="solution-vector" id="slackVars">—</div>
+                </div>
+                <div class="solution-item">
+                  <div class="solution-label">Basic Variables (in basis)</div>
+                  <div class="solution-vector" id="basicVars">—</div>
+                </div>
+                <div class="solution-item">
+                  <div class="solution-label">Basic Solution Values (x_B*)</div>
+                  <div class="solution-vector" id="xBVec">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dual Information -->
+            <div class="solution-card">
+              <div class="solution-header">
+                <span class="solution-icon">🔄</span>
+                <h3>Dual Information</h3>
+              </div>
+              <div class="solution-content">
+                <div class="solution-item">
+                  <div class="solution-label">
+                    Dual Solution (Shadow Prices) y*
+                  </div>
+                  <div class="solution-vector" id="yStar">—</div>
+                </div>
+                <div class="solution-item">
+                  <div class="solution-label">Basis Set 𝔅</div>
+                  <div class="solution-vector" id="basisSet">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sensitivity Analysis -->
+          <div
+            class="analysis-section"
+            id="sensitivitySection"
+            style="display: none"
+          >
+            <div class="section-header">
+              <span class="section-icon">📈</span>
+              <label>Sensitivity Analysis</label>
+            </div>
+            <div class="analysis-content" id="sensitivityBox"></div>
+          </div>
+
+          <!-- Dictionary -->
+          <div class="analysis-section">
+            <div class="section-header">
+              <span class="section-icon">📖</span>
+              <label>Optimal Dictionary</label>
+              <span class="section-subtitle"
+                >Matrix form: ζ-row and basic rows</span
+              >
+            </div>
+            <div class="log-box formatted" id="dictBox"></div>
+          </div>
+
+          <!-- Iteration Log -->
+          <div class="analysis-section">
+            <div class="section-header">
+              <span class="section-icon">🔍</span>
+              <label>Simplex Iteration History</label>
+              <span class="section-subtitle"
+                >Tableaux and pivot operations</span
+              >
+            </div>
+            <div class="log-box formatted" id="logBox"></div>
+          </div>
+
+          <div style="margin-top: 10px; position: relative; z-index: 1">
+            <label>2D Feasible Region (x₁, x₂)</label>
+            <canvas id="plotCanvas"></canvas>
+            <div class="hint">
+              Plot is only meaningful when n = 2 and constraints are Ax ≤ b with
+              x ≥ 0.
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <input
+      type="file"
+      id="csvFileInput"
+      accept=".csv,.txt"
+      style="display: none"
+    />
+    <script src="solver.js"></script>
+  </body>
+</html>
