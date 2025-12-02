@@ -3,7 +3,7 @@
 <h1>🔷 Linear Optimization Studio</h1>
 <p><i>A modern, interactive platform to solve Linear Programming problems using Simplex, Dual Simplex, and Two-Phase Methods — with real-time visualizations and sensitivity analysis.</i></p>
 
-<img src="banner.png" alt="Linear Optimization Studio Banner" width="100%" />
+
 
 <br><br>
 
@@ -66,7 +66,7 @@
 <h2 id="installation">⚙️ Installation</h2>
 
 <pre>
-git clone https://github.com/yourusername/linear-optimization-studio
+git clone https://github.com/wasayfaizan/linear-optimization-studio
 cd linear-optimization-studio
 </pre>
 
