@@ -110,11 +110,4 @@ Subject to:
 
 <hr>
 
-<h2>📄 License</h2>
-<p>MIT License — free to use, modify, and distribute.</p>
 
-<hr>
-
-<div align="center">
-  <h3>Made with ❤️ by Abdul Wasay Faizan</h3>
-</div>
