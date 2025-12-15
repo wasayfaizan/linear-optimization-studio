@@ -37,9 +37,11 @@
 <h2 id="demo">📸 Demo Preview</h2>
 
 <p align="center">
+  <img width="1004" height="625" alt="Screenshot 2025-11-30 at 8 04 14 PM" src="https://github.com/user-attachments/assets/454fccc5-06a7-4e75-a9f2-1eff0fdff129" />
+  <img width="473" height="583" alt="Screenshot 2025-11-30 at 8 04 26 PM" src="https://github.com/user-attachments/assets/62265544-c2ea-44f3-92d2-de6e24656c69" />
   <img width="513" height="636" alt="Screenshot 2025-11-30 at 8 04 36 PM" src="https://github.com/user-attachments/assets/caf5ca57-13c6-41b7-aa02-528b1ed48be6" />
-<img width="473" height="583" alt="Screenshot 2025-11-30 at 8 04 26 PM" src="https://github.com/user-attachments/assets/62265544-c2ea-44f3-92d2-de6e24656c69" />
-<img width="1004" height="625" alt="Screenshot 2025-11-30 at 8 04 14 PM" src="https://github.com/user-attachments/assets/454fccc5-06a7-4e75-a9f2-1eff0fdff129" />
+
+
 
 </p>
 
